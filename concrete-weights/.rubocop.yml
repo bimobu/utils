@@ -1,0 +1,43 @@
+# these files cascade and build the base config of our linting
+inherit_from:
+  - https://raw.githubusercontent.com/talentplatforms/shared-rubocop/master/.talentplatforms-rubocop.yml
+  - .rubocop_todo.yml
+
+require:
+  - rubocop-rails
+
+# service specifics start below
+
+Rails:
+  Enabled: true
+
+Rails/HasManyOrHasOneDependent:
+  Enabled: false
+
+Rails/Blank:
+  Enabled: false
+
+Rails/InverseOf:
+  Exclude:
+    - app/models/customer.rb
+
+Rails/UnknownEnv:
+  Environments:
+    - production
+    - development
+    - test
+    - staging
+
+# if we need to turn of rules, shut up about it!
+Lint/RedundantCopEnableDirective:
+  Enabled: false
+
+Naming/VariableNumber:
+  Enabled: false
+
+Style/OptionalBooleanParameter:
+  Enabled: false
+
+Metrics/AbcSize:
+  Exclude:
+    - spec/support/open_api_desc.rb
