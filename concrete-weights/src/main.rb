@@ -20,7 +20,7 @@ def get_weight_string(weight)
 end
 
 def get_console_input(default_value)
-  value = gets.chomp.to_i
+  value = gets.chomp.sub(",", ".").to_f
   value = default_value if value.zero?
   value
 end
@@ -38,6 +38,8 @@ width = get_console_input 3
 
 puts "What is the density of the concrete in g/cm^3? (default 2)" # typically 1,8 - 2,4 g/cm3
 density = get_console_input 2
+
+puts density
 
 weight = get_weight(outer_diameter, inner_diameter, width, density)
 puts "The weight of the plate is #{get_weight_string(weight)}."
