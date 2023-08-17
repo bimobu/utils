@@ -1,0 +1,20 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    debug (1.8.0)
+      irb (>= 1.5.0)
+      reline (>= 0.3.1)
+    io-console (0.6.0)
+    irb (1.7.4)
+      reline (>= 0.3.6)
+    reline (0.3.7)
+      io-console (~> 0.5)
+
+PLATFORMS
+  arm64-darwin-22
+
+DEPENDENCIES
+  debug
+
+BUNDLED WITH
+   2.4.12
