@@ -2,8 +2,6 @@
 
 require 'debug'
 
-puts 'hello'
-
 def correct_directory(base_dir)
   Dir.foreach(base_dir) do |filename|
     next if ['.', '..'].include?(filename)
