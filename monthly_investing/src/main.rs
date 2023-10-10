@@ -3,6 +3,7 @@ use num_format::{Locale, ToFormattedString};
 
 // TODO add tests!
 
+/// Simple program to calculate the expected return when investing a fixed amount every month
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
