@@ -11,7 +11,7 @@ class Security < Base
     Security.new(
       id: security_hash['id'],
       share_price_start_of_year: security_hash['share_price_start_of_year'],
-      share_price_end_of_year: security_hash['share_price_end_of_year'],
+      share_price_end_of_year: security_hash['share_price_end_of_year'], # also being used as the current price
       purchases: security_hash['purchases'].map { |p| Purchase.create(p) }
     )
   end
@@ -22,5 +22,23 @@ class Security < Base
     @share_price_start_of_year = share_price_start_of_year
     @share_price_end_of_year = share_price_end_of_year
     @purchases = purchases
+  end
+
+  def purchase_value
+    purchases.sum(&:buy_value)
+  end
+
+  def year_end_value
+    purchases.sum { |p| p.sell_value(sell_price: share_price_end_of_year) }
+  end
+
+  def realized_profit
+    purchases.sum do |p|
+      p.realized_profit(sell_price: share_price_end_of_year)
+    end
+  end
+
+  def overall_profit
+    purchases.sum { |p| p.profit(sell_price: share_price_end_of_year) }
   end
 end
