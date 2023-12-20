@@ -25,20 +25,20 @@ class Security < Base
   end
 
   def purchase_value
-    purchases.sum(&:buy_value)
+    purchases.sum(&:buy_value).round(2)
   end
 
   def year_end_value
-    purchases.sum { |p| p.sell_value(sell_price: share_price_end_of_year) }
+    purchases.sum { |p| p.sell_value(sell_price: share_price_end_of_year) }.round(2)
   end
 
   def realized_profit
     purchases.sum do |p|
       p.realized_profit(sell_price: share_price_end_of_year)
-    end
+    end.round(2)
   end
 
   def overall_profit
-    purchases.sum { |p| p.profit(sell_price: share_price_end_of_year) }
+    purchases.sum { |p| p.profit(sell_price: share_price_end_of_year) }.round(2)
   end
 end
