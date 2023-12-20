@@ -2,9 +2,10 @@
 
 # Handles calculation for allowances
 class AllowanceService
-  def find_max_allowance(ticker, sell_price, allowance)
+  def find_max_allowance(sell_price, allowance)
     portfolio = data_service.load_portfolio
-    purchases = portfolio.security(ticker).purchases
+    security = portfolio.securities.first
+    purchases = security.purchases
 
     maximize_allowance(purchases:, sell_price:, allowance:) => {
       amount_to_sell:,
@@ -14,7 +15,7 @@ class AllowanceService
     last_sold_purchase = last_sold_purchase(purchases)
     profit_under_allowance = (profit_over_allowance - last_sold_purchase.profit_per_share(sell_price:)).round(2)
 
-    { amount_to_sell:, profit_over_allowance:, profit_under_allowance:, portfolio: }
+    { amount_to_sell:, profit_over_allowance:, profit_under_allowance:, portfolio:, ticker: security.id }
   end
 
   private

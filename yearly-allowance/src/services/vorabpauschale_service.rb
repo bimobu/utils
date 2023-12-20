@@ -1,38 +1,28 @@
 # frozen_string_literal: true
 
+require 'debug'
+
 # Responsible of calculating the Vorabpauschale
 class VorabpauschaleService
-  def calculate_vorabpauschale
-    base_interest = 0.0255
-    partial_exemption = 0.7
+  PARTIAL_EXEMPTION = 0.7
 
-    data_service.
+  def calculate_vorabpauschale(base_interest)
+    portfolio = data_service.load_portfolio
 
-      securities = [
-        {
-          share_price_start_of_year: 41,
-          share_price_end_of_year: 62,
-          number_of_shares: 382
-        },
-        {
-          share_price_start_of_year: 73.8,
-          share_price_end_of_year: 90,
-          number_of_shares: 41
-        },
-        {
-          share_price_start_of_year: 386,
-          share_price_end_of_year: 480,
-          number_of_shares: 9
-        }
-      ]
+    portfolio.securities.sum do |security|
+      security.purchases.sum do |purchase|
+        vorabpauschale_of_purchase(security, purchase, base_interest)
+      end
+    end
+  end
 
-    puts(securities.sum do |s|
-      value_start_of_year = s[:share_price_start_of_year] * s[:number_of_shares]
-      value_end_of_year = s[:share_price_end_of_year] * s[:number_of_shares]
-      appreciation = value_end_of_year - value_start_of_year
-      base_yield = value_start_of_year * base_interest * partial_exemption
-      [appreciation, base_yield].min.round(2)
-    end)
+  def vorabpauschale_of_purchase(security, purchase, base_interest) # rubocop:disable Metrics/AbcSize
+    months_remaining = 12 - purchase.date.month + 1
+    value_start_of_year = purchase.amount * security.share_price_start_of_year
+    value_end_of_year = purchase.amount * security.share_price_end_of_year
+    appreciation = value_end_of_year - value_start_of_year
+    base_yield = value_start_of_year * base_interest * PARTIAL_EXEMPTION
+    ([appreciation, base_yield].min * (months_remaining / 12.0)).round(2)
   end
 
   private
