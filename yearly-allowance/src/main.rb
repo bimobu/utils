@@ -36,14 +36,20 @@ def get_input(statement, lambda_hash)
   get_input(statement, lambda_hash) if repeat
 end
 
-def print_summary(ticker, sell_price)
-  portfolio = data_service.load_portfolio
-  purchases = portfolio.security(ticker).purchases
+def print_summary_for_security(security)
+  puts "\n#{security.id}:"
+  puts "Purchase value: #{security.purchase_value}"
+  puts "Year end value: #{security.year_end_value}"
+  puts "Realized profit: #{security.realized_profit}"
+  puts "Overall profit: #{security.overall_profit}"
+end
 
-  puts "Purchase value: #{purchases.sum(&:buy_value)}"
-  puts "Current value: #{purchases.sum { |p| p.sell_value(sell_price:) }}"
-  puts "Realized profit: #{purchases.sum { |p| p.realized_profit(sell_price:) }}"
-  puts "Overall profit: #{purchases.sum { |p| p.profit(sell_price:) }}"
+def print_summary
+  portfolio = data_service.load_portfolio
+
+  portfolio.securities.each do |security|
+    print_summary_for_security(security)
+  end
 end
 
 def shares_string(number)
@@ -66,10 +72,6 @@ def prompt_allowance
   allowance
 end
 
-ticker = 'LYX00F'
-sell_price = 60.00
-allowance = 988.37 - 395.59
-
 beginning_question = <<~DOC
   What do you want to do?
   [P] => print the summary
@@ -80,7 +82,7 @@ DOC
 get_input(
   beginning_question,
   {
-    'p' => -> { print_summary(ticker, sell_price) },
+    'p' => -> { print_summary },
     'v' => lambda do
       vorabpauschale = calculate_vorabpauschale
       puts "Your Vorabpauschale is expected to be #{vorabpauschale}"
@@ -90,7 +92,7 @@ get_input(
 
       puts "Trying to maximize your allowance of #{allowance}..."
 
-      allowance_service.find_max_allowance(sell_price, allowance) => {
+      allowance_service.find_max_allowance(allowance) => {
         amount_to_sell:,
         profit_over_allowance:,
         profit_under_allowance:,
