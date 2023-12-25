@@ -88,13 +88,14 @@ get_input(
       puts "Your Vorabpauschale is expected to be #{vorabpauschale}"
     end,
     'a' => lambda do
-      allowance = prompt_allowance
+      allowance = prompt_allowance.round(2)
 
       puts "Trying to maximize your allowance of #{allowance}..."
 
       allowance_service.find_max_allowance(allowance) => {
-        amount_to_sell:,
+        amount_to_sell_over_allowance:,
         profit_over_allowance:,
+        amount_to_sell_under_allowance:,
         profit_under_allowance:,
         portfolio:,
         ticker:
@@ -102,12 +103,12 @@ get_input(
 
       puts <<~DOC
 
-        To maximize your allowance, you can sell #{shares_string amount_to_sell} of #{ticker} for a profit of #{profit_over_allowance}, exceeding your allowance by #{(profit_over_allowance - allowance).round(2)}.
-        If you do not want to exceed your allowance, just sell one less share (#{shares_string(amount_to_sell - 1)}) for a profit of #{profit_under_allowance}, deceeding your allowance by #{(allowance - profit_under_allowance).round(2)}
+        To maximize your allowance, you can sell #{shares_string amount_to_sell_over_allowance} of #{ticker} for a profit of #{profit_over_allowance}, exceeding your allowance by #{(profit_over_allowance - allowance).round(2)}.
+        If you do not want to exceed your allowance, just sell one less share (#{shares_string amount_to_sell_under_allowance}) for a profit of #{profit_under_allowance}, deceeding your allowance by #{(allowance - profit_under_allowance).round(2)}
       DOC
 
       get_input(
-        "\nDo you want to update the json data with the the new sold shares? [y/n]",
+        "\nDo you want to update the json data with the the new sold shares over the allowance? [y/n]",
         {
           'y' => lambda do
             puts 'Updating the json data'

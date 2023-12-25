@@ -23,8 +23,8 @@ class Purchase < Base
     @shares_sold = shares_sold
   end
 
-  def realized_profit(sell_price:)
-    (sell_value(sell_price:, amount: @shares_sold) - buy_value(amount: shares_sold)).round(2)
+  def realized_profit(sell_price:, amount: @shares_sold)
+    (sell_value(sell_price:, amount:) - buy_value(amount:)).round(2)
   end
 
   def profit(sell_price:)
@@ -41,7 +41,7 @@ class Purchase < Base
 
   def shares_to_sell(sell_price:, goal_profit:)
     shares_to_sell = goal_profit / profit_per_share(sell_price:)
-    [@amount, shares_to_sell.ceil].min
+    [@amount - @shares_sold, shares_to_sell.ceil].min
     # ceil => always sell the share even if it exceeds the goal profit
     # round => sell the share if it exceeds the goal profit by less than 50% of its profit
     # floor => never sell the share even if it exceeds the goal profit

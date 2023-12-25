@@ -2,10 +2,10 @@
 
 require 'debug'
 
+require_relative '../constants'
+
 # Responsible of calculating the Vorabpauschale
 class VorabpauschaleService
-  PARTIAL_EXEMPTION = 0.7
-
   def calculate_vorabpauschale(base_interest)
     portfolio = data_service.load_portfolio
 
@@ -21,7 +21,7 @@ class VorabpauschaleService
     value_start_of_year = purchase.amount * security.share_price_start_of_year
     value_end_of_year = purchase.amount * security.share_price_end_of_year
     appreciation = value_end_of_year - value_start_of_year
-    base_yield = value_start_of_year * base_interest * PARTIAL_EXEMPTION
+    base_yield = value_start_of_year * base_interest * Constants.partial_exemption
     ([appreciation, base_yield].min * (months_remaining / 12.0)).round(2)
   end
 
