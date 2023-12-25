@@ -2,16 +2,17 @@
 
 require 'json'
 
+require_relative 'constants'
 require_relative './services/data_service'
-require_relative './services/allowance_service'
+require_relative './services/profit_service'
 require_relative './services/vorabpauschale_service'
 
 def data_service
   DataService.new
 end
 
-def allowance_service
-  AllowanceService.new
+def profit_service
+  ProfitService.new
 end
 
 def vorabpauschale_service
@@ -87,24 +88,30 @@ get_input(
       vorabpauschale = calculate_vorabpauschale
       puts "Your Vorabpauschale is expected to be #{vorabpauschale}"
     end,
-    'a' => lambda do
+    'a' => lambda do # rubocop:disable Metrics/BlockLength
       allowance = prompt_allowance.round(2)
+      goal_profit = (allowance / Constants.partial_exemption).round(2)
 
-      puts "Trying to maximize your allowance of #{allowance}..."
+      puts "Trying to maximize your allowance of #{allowance} by reaching a profit of #{goal_profit}..."
 
-      allowance_service.find_max_allowance(allowance) => {
-        amount_to_sell_over_allowance:,
-        profit_over_allowance:,
-        amount_to_sell_under_allowance:,
-        profit_under_allowance:,
+      profit_service.reach_goal_profit(goal_profit) => {
+        amount_to_sell_over_goal_profit:,
+        profit_over_goal_profit:,
+        amount_to_sell_under_goal_profit:,
+        profit_under_goal_profit:,
         portfolio:,
         ticker:
       }
 
+      taxed_profit_over_goal = (profit_over_goal_profit * Constants.partial_exemption).round(2)
+      allowance_overshoot = (taxed_profit_over_goal - allowance).round(2)
+      taxed_profit_under_goal = (profit_under_goal_profit * Constants.partial_exemption).round(2)
+      allowance_undershoot = (allowance - taxed_profit_under_goal).round(2)
+
       puts <<~DOC
 
-        To maximize your allowance, you can sell #{shares_string amount_to_sell_over_allowance} of #{ticker} for a profit of #{profit_over_allowance}, exceeding your allowance by #{(profit_over_allowance - allowance).round(2)}.
-        If you do not want to exceed your allowance, just sell one less share (#{shares_string amount_to_sell_under_allowance}) for a profit of #{profit_under_allowance}, deceeding your allowance by #{(allowance - profit_under_allowance).round(2)}
+        To maximize your allowance of #{allowance}, you can sell #{shares_string amount_to_sell_over_goal_profit} of #{ticker} for a profit of #{profit_over_goal_profit} (taxed #{taxed_profit_over_goal}), exceeding your allowance by #{allowance_overshoot}.
+        If you do not want to exceed your allowance, just sell one less share (#{shares_string amount_to_sell_under_goal_profit}) for a profit of #{profit_under_goal_profit} (taxed #{taxed_profit_under_goal}), deceeding your allowance by #{allowance_undershoot}
       DOC
 
       get_input(
